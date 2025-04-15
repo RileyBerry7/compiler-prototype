@@ -1,0 +1,30 @@
+# IDE / Project config
+*.iml
+*.xml
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# System files
+.DS_Store
+
+# Environment
+.env
+.venv/
+env/
+venv/
+
+# Ignore everything except source files and token_stream.txt
+custom-cpp-compiler.iml
+discord.xml
+modules.xml
+profiles_settings.xml
+vcs.xml
+
+# Unneeded project configs
+*.idea/
+
+# You want to keep this one
+!token_stream.txt

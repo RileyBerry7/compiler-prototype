@@ -10,6 +10,10 @@ class Scanner:
         self.curr_line = self.source.get_line(0) if self.source.line_count() > 0 else ""
         self.exhausted = self.curr_line == ""
 
+    def unget_char(self):
+        if self.scan_ptr > 0:
+            self.scan_ptr -= 1
+
     def get_char(self):
         if self.exhausted:
             return None

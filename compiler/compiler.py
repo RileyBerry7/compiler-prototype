@@ -6,12 +6,16 @@ from .error_table  import ErrorTable
 from compiler.front_end.lexical_analysis.lexer import Lexer
 
 
-def compiler():
+class Compiler:
+    def __init__(self, input_file_path:
+                str="custom-cpp-compiler/input/test.cpp"):
 
-    input_directory = "/input/test.cpp"
-    symbols = SymbolTable()
-    errors  = ErrorTable()
-    lexer   = Lexer(symbols, errors)
+        self.in_file = input_file_path
+        self.symbols = SymbolTable()
+        self.errors  = ErrorTable()
 
-    # Lexical analysis
-    lexer.scan(input_directory)
+    def run_lexer(self):
+        lexer = Lexer(self.symbols, self.errors)
+
+        # Lexical analysis
+        lexer.scan(self.in_file)

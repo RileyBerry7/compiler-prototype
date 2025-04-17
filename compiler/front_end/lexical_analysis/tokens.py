@@ -1,26 +1,7 @@
 # tokens.py
 from enum import Enum, auto
 from string import punctuation
-
-
-####################################################################################
-
-class Token:
-    def __init__(self, token_type: "TokenType", lexeme:str, line:int, column:int):
-        self.type = token_type
-        self.lexeme = lexeme
-        self.line   = line
-        self.column = column
-
-####################################################################################
-class TokenStream:
-    def __init__(self):
-        self.__stream = []
-        self.length   = 0
-
-    def add(self, token: Token):
-        self.__stream.append(token)
-        self.length += 1
+from .file_writer import FileWriter
 
 ###################################################################################
 
@@ -46,6 +27,26 @@ class TokenStream:
     def add(self, token: Token):
         self.__stream.append(token)
         self.length += 1
+
+    def display(self, out_file: str):
+        output = FileWriter(out_file)
+        line_buffer = []
+        last_line = 1  # Assuming line numbers start at 1
+
+        for token in self.__stream:
+            # If still on the same line, keep appending
+            if token.line == last_line:
+                line_buffer.append(token.type.name)
+            else:
+                # Output the previous line
+                output.write_line(" ".join(line_buffer))
+                line_buffer = [token.type.name]  # Start new line
+                last_line = token.line
+
+        # Output the last line
+        if line_buffer:
+            output.write_line(" ".join(line_buffer))
+
 
 ####################################################################################
 

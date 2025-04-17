@@ -1,5 +1,4 @@
-
-int main();{
+int main(){
 
     testVar1 = (1+1) * (10 - 1);
     testVar2 = testVar1 + 2;
@@ -8,10 +7,10 @@ int main();{
     cout << "Hello world.\n";
 
     // Test comment 2
-    if(testVar1 >= 5);
+    if(testVar1 >= 5)
     {
         cout << "Test: conditional statement." << endl;
-    }
+    };
 
     return 0
-}
+};

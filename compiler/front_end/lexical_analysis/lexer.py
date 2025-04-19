@@ -13,63 +13,213 @@ class Lexer:
     def scan(self, in_path: str, out_path: str = None):
         scanner = Scanner(in_path)
         token_stream = TokenStream()
-        lexeme = []
+
         line = 1
         column = 1
+        indent_stack = [0]
+        at_line_start = True
 
-        ######################################################################################################
-        # Main Loop - Scans all chars in order, from the infile
         while not scanner.exhausted:
-            curr_char = scanner.get_char()
+            # Handle indentation at start of a new line
+            if at_line_start:
+                # Count leading spaces/tabs
+                indent_count = 0
+                while True:
+                    p = scanner.peek()
+                    if p == ' ':
+                        scanner.get_char()
+                        indent_count += 1
+                        column += 1
+                    elif p == '\t':
+                        scanner.get_char()
+                        indent_count += 4  # treat tab as width 4
+                        column += 1
+                    else:
+                        break
+                # Emit INDENT/DEDENT tokens
+                prev_indent = indent_stack[-1]
+                if indent_count > prev_indent:
+                    indent_stack.append(indent_count)
+                    token_stream.add(Token(TokenType.INDENT, '', line, column))
+                while indent_count < indent_stack[-1]:
+                    indent_stack.pop()
+                    token_stream.add(Token(TokenType.DEDENT, '', line, column))
+                at_line_start = False
 
-            # Redundancy - break loop early on Invalid char
+            curr_char = scanner.get_char()
             if curr_char is None:
                 break
 
-            # ===== Handle Newline =====
+            # ===== Handle Newline & END_OF_LINE =====
             if curr_char == '\n':
+                token_stream.add(Token(TokenType.END_OF_LINE, '', line, column))
                 line += 1
                 column = 1
+                at_line_start = True
                 continue
 
-            # ===== Skip whitespace =====
+            # ===== Skip other whitespace =====
             if curr_char.isspace():
                 column += 1
                 continue
 
-            # ===== IDENTIFIERS / KEYWORDS =====
-            if curr_char.isalpha() or curr_char == '_':
-                lexeme.append(curr_char)
+            # ===== Block Comments (/* ... */) =====
+            if curr_char == '/' and scanner.peek() == '*':
                 start_col = column
-                column += 1
-
-                # Consume the rest of the identifier
+                lexeme = [curr_char]
+                scanner.get_char()
+                lexeme.append('*')
+                column += 2
                 while True:
-                    p = scanner.peak()
-                    if p is not None and p != '\n' and (p.isalnum() or p == '_'):
+                    c = scanner.get_char()
+                    if c is None:
+                        self.errs.add_error("Unterminated block comment", line, column)
+                        break
+                    lexeme.append(c)
+                    if c == '\n':
+                        line += 1
+                        column = 1
+                    else:
+                        column += 1
+                    if c == '*' and scanner.peek() == '/':
+                        lexeme.append(scanner.get_char())
+                        column += 1
+                        break
+                token_stream.add(Token(TokenType.COMMENT, ''.join(lexeme), line, start_col))
+                continue
+
+            # ===== Line Comments (// ...) =====
+            if curr_char == '/' and scanner.peek() == '/':
+                start_col = column
+                lexeme = [curr_char]
+                scanner.get_char()
+                lexeme.append('/')
+                column += 2
+                while True:
+                    p = scanner.peek()
+                    if p is None or p == '\n':
+                        break
+                    c = scanner.get_char()
+                    lexeme.append(c)
+                    column += 1
+                token_stream.add(Token(TokenType.COMMENT, ''.join(lexeme), line, start_col))
+                continue
+
+            # ===== Raw String Literals R"delim(... )delim" =====
+            if curr_char == 'R' and scanner.peek() == '"':
+                start_col = column
+                lexeme = ['R']
+                c = scanner.get_char()
+                lexeme.append(c)  # consume '"'
+                column += 1
+                # read the delimiter until '('
+                delim = []
+                while True:
+                    c = scanner.get_char()
+                    if c is None:
+                        self.errs.add_error("Unterminated raw string", line, column)
+                        break
+                    lexeme.append(c)
+                    column += 1
+                    if c == '(':
+                        break
+                    delim.append(c)
+                closing = ')' + ''.join(delim) + '"'
+                buffer = ''
+                while True:
+                    c = scanner.get_char()
+                    if c is None:
+                        self.errs.add_error("Unterminated raw string", line, column)
+                        break
+                    lexeme.append(c)
+                    column += 1
+                    buffer += c
+                    if buffer.endswith(closing):
+                        break
+                    if c == '\n':
+                        line += 1
+                        column = 1
+                token_stream.add(Token(TokenType.STRING_LITERAL, ''.join(lexeme), line, start_col))
+                continue
+
+            # ===== String Literals "..." =====
+            if curr_char == '"':
+                start_col = column
+                lexeme = [curr_char]
+                column += 1
+                while True:
+                    c = scanner.get_char()
+                    if c is None or c == '\n':
+                        self.errs.add_error("Unterminated string literal", line, column)
+                        break
+                    lexeme.append(c)
+                    column += 1
+                    if c == '\\':
+                        nxt = scanner.get_char()
+                        if nxt is None:
+                            self.errs.add_error("Invalid escape sequence", line, column)
+                            break
+                        lexeme.append(nxt)
+                        column += 1
+                        continue
+                    if c == '"':
+                        break
+                token_stream.add(Token(TokenType.STRING_LITERAL, ''.join(lexeme), line, start_col))
+                continue
+
+            # ===== Character Literals '...'<char> =====
+            if curr_char == "'":
+                start_col = column
+                lexeme = [curr_char]
+                column += 1
+                c = scanner.get_char()
+                if c is None or c == '\n':
+                    self.errs.add_error("Unterminated char literal", line, column)
+                else:
+                    lexeme.append(c)
+                    column += 1
+                    if c == '\\':  # escape in char literal
+                        nxt = scanner.get_char()
+                        if nxt:
+                            lexeme.append(nxt)
+                            column += 1
+                    c2 = scanner.get_char()
+                    if c2 is None:
+                        self.errs.add_error("Unterminated char literal", line, column)
+                    else:
+                        lexeme.append(c2)
+                        column += 1
+                        if c2 != "'":
+                            self.errs.add_error("Invalid char literal", line, column)
+                token_stream.add(Token(TokenType.CHAR_LITERAL, ''.join(lexeme), line, start_col))
+                continue
+
+            # ===== Identifiers / Keywords =====
+            if curr_char.isalpha() or curr_char == '_':
+                start_col = column
+                lexeme = [curr_char]
+                column += 1
+                while True:
+                    p = scanner.peek()
+                    if p is not None and (p.isalnum() or p == '_'):
                         c = scanner.get_char()
                         lexeme.append(c)
                         column += 1
                     else:
                         break
-
-                # Assemble / Add Identifier token
                 token_str = ''.join(lexeme)
                 token_type = token_dict.get(token_str, TokenType.IDENTIFIER)
                 token_stream.add(Token(token_type, token_str, line, start_col))
-                lexeme = []
                 continue
 
-            # ===== NUMBERS =====
+            # ===== Numbers (int & float) =====
             if curr_char.isdigit():
-                lexeme.append(curr_char)
                 start_col = column
+                lexeme = [curr_char]
                 column += 1
                 is_float = False
-
-                # Consume the rest of the number (handle float with one dot)
                 while True:
-                    p = scanner.peak()
+                    p = scanner.peek()
                     if p is None or p == '\n':
                         break
                     if p.isdigit():
@@ -79,65 +229,41 @@ class Lexer:
                         continue
                     if p == '.' and not is_float:
                         c = scanner.get_char()
-                        is_float = True
                         lexeme.append(c)
+                        is_float = True
                         column += 1
                         continue
-                    # anything else ends the number
                     break
-
-                # Assemble / Add NUMBER token
                 token_type = TokenType.FLOAT_LITERAL if is_float else TokenType.INT_LITERAL
                 token_stream.add(Token(token_type, ''.join(lexeme), line, start_col))
-                lexeme = []
                 continue
 
-            # ===== OPERATORS / PUNCTUATION / COMMENTS =====
+            # ===== Operators / Punctuation =====
             if curr_char in operators or curr_char in punctuations:
-
                 start_col = column
-                # build lookahead string up to 3 chars
-                second_char = scanner.peak(0) or ''
-                third_char = scanner.peak(1) or ''
-                lookahead = curr_char + second_char + third_char
-
-                # Reduce lookahead until it matches a token
+                # lookahead up to 3 chars
+                lookahead = curr_char
+                for i in range(2):
+                    p = scanner.peek(i)
+                    lookahead += p or ''
+                # reduce until match
                 while len(lookahead) > 1 and lookahead not in token_dict:
                     lookahead = lookahead[:-1]
-
-                # Check if COMMENT
-                if token_dict.get(lookahead) == TokenType.COMMENT:
-                    comment = [curr_char]
-                    # consume the '//' prefix
-                    for _ in range(len(lookahead) - 1):
-                        comment.append(scanner.get_char())
-                    # accumulate until newline or EOF
-                    while True:
-                        peak = scanner.peak(0)
-                        if peak is None or peak == '\n':
-                            break
-                        c = scanner.get_char()
-                        comment.append(c)
-                    token_stream.add(Token(TokenType.COMMENT, ''.join(comment), line, start_col))
-                    column = 1
-                    line += 1
-                    continue
-
-                # Not a comment: emit the operator/punctuation
-                token_stream.add(Token(token_dict.get(lookahead, TokenType.UNKNOWN), lookahead, line, start_col))
-                column += len(lookahead)
-                # consume the extra chars
+                tok_type = token_dict.get(lookahead, TokenType.UNKNOWN)
+                token_stream.add(Token(tok_type, lookahead, line, start_col))
+                # consume extras
                 for _ in range(len(lookahead) - 1):
                     scanner.get_char()
+                column += len(lookahead)
                 continue
 
-            # ===== UNKNOWN CHAR =====
+            # ===== Unknown Character =====
             token_stream.add(Token(TokenType.UNKNOWN, curr_char, line, column))
             column += 1
 
-        # Debug output
-        print("[DEBUG] Done scanning.")
-        print(f"[DEBUG] Tokens in stream: {len(token_stream._TokenStream__stream)}")
-        for tok in token_stream._TokenStream__stream:
-            print(f"{tok.type.name} => {tok.lexeme}")
+        # After EOF, unwind remaining indents
+        while len(indent_stack) > 1:
+            indent_stack.pop()
+            token_stream.add(Token(TokenType.DEDENT, '', line, column))
+
         return token_stream

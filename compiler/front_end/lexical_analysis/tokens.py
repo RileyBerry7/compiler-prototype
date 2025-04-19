@@ -3,11 +3,6 @@ from enum import Enum, auto
 from string import punctuation
 from .file_writer import FileWriter
 
-###################################################################################
-
-from enum import Enum, auto
-from string import punctuation
-
 ####################################################################################
 
 class Token:
@@ -31,209 +26,197 @@ class TokenStream:
     def display(self, out_file: str):
         output = FileWriter(out_file)
         line_buffer = []
-        last_line = 1  # Assuming line numbers start at 1
-
+        last_line = 1
         for token in self.__stream:
-            # If still on the same line, keep appending
             if token.line == last_line:
                 line_buffer.append(token.type.name)
             else:
-                # Output the previous line
                 output.write_line(" ".join(line_buffer))
-                line_buffer = [token.type.name]  # Start new line
+                line_buffer = [token.type.name]
                 last_line = token.line
-
-        # Output the last line
         if line_buffer:
             output.write_line(" ".join(line_buffer))
-
 
 ####################################################################################
 
 class TokenType(Enum):
     # =========================
-    # General tokens
+    # Literals & Indentation
     # =========================
-    IDENTIFIER = auto()
-    INT_LITERAL = auto()
-    INDENT = auto()
-    DEDENT = auto()
-    FLOAT_LITERAL = auto()
+    IDENTIFIER     = auto()
+    INT_LITERAL    = auto()
+    FLOAT_LITERAL  = auto()
     STRING_LITERAL = auto()
-    CHAR_LITERAL = auto()
-    END_OF_FILE = auto()
-    UNKNOWN = auto()
-    COMMENT = auto()
+    CHAR_LITERAL   = auto()
+    INDENT         = auto()
+    DEDENT         = auto()
+    END_OF_LINE    = auto()
+    END_OF_FILE    = auto()
+    UNKNOWN        = auto()
+    COMMENT        = auto()
 
     # =========================
     # Keywords
     # =========================
-    ALIGNAS = auto()
-    ALIGNOF = auto()
-    AND = auto()
-    AND_EQ = auto()
-    ASM = auto()
-    AUTO = auto()
-    BITAND = auto()
-    BITOR = auto()
-    BOOL = auto()
-    BREAK = auto()
-    CASE = auto()
-    CATCH = auto()
-    CHAR = auto()
-    CHAR8_T = auto()
-    CHAR16_T = auto()
-    CHAR32_T = auto()
-    CLASS = auto()
-    COMPL = auto()
-    CONCEPT = auto()
-    CONST = auto()
-    CONSTEVAL = auto()
-    CONSTEXPR = auto()
-    CONSTINIT = auto()
-    CONST_CAST = auto()
-    CONTINUE = auto()
-    CO_AWAIT = auto()
-    CO_RETURN = auto()
-    CO_YIELD = auto()
-    DECLTYPE = auto()
-    DEFAULT = auto()
-    DELETE = auto()
-    DO = auto()
-    DOUBLE = auto()
-    DYNAMIC_CAST = auto()
-    ELSE = auto()
-    ENUM = auto()
-    EXPLICIT = auto()
-    EXPORT = auto()
-    EXTERN = auto()
-    FALSE = auto()
-    FINAL = auto()
-    FLOAT = auto()
-    FOR = auto()
-    FRIEND = auto()
-    GOTO = auto()
-    IF = auto()
-    INLINE = auto()
-    INT = auto()
-    LONG = auto()
-    MUTABLE = auto()
-    NAMESPACE = auto()
-    NEW = auto()
-    NOEXCEPT = auto()
-    NOT = auto()
-    NOT_EQ = auto()
-    NULLPTR = auto()
-    OPERATOR = auto()
-    OR = auto()
-    OR_EQ = auto()
-    PRIVATE = auto()
-    PROTECTED = auto()
-    PUBLIC = auto()
-    REGISTER = auto()
+    ALIGNAS        = auto()
+    ALIGNOF        = auto()
+    AND            = auto()
+    AND_EQ         = auto()
+    ASM            = auto()
+    AUTO           = auto()
+    BITAND         = auto()
+    BITOR          = auto()
+    BOOL           = auto()
+    BREAK          = auto()
+    CASE           = auto()
+    CATCH          = auto()
+    CHAR           = auto()
+    CHAR8_T        = auto()
+    CHAR16_T       = auto()
+    CHAR32_T       = auto()
+    CLASS          = auto()
+    COMPL          = auto()
+    CONCEPT        = auto()
+    CONST          = auto()
+    CONSTEVAL      = auto()
+    CONSTEXPR      = auto()
+    CONSTINIT      = auto()
+    CONST_CAST     = auto()
+    CONTINUE       = auto()
+    CO_AWAIT       = auto()
+    CO_RETURN      = auto()
+    CO_YIELD       = auto()
+    DECLTYPE       = auto()
+    DEFAULT        = auto()
+    DELETE         = auto()
+    DO             = auto()
+    DOUBLE         = auto()
+    DYNAMIC_CAST   = auto()
+    ELSE           = auto()
+    ENUM           = auto()
+    EXPLICIT       = auto()
+    EXPORT         = auto()
+    EXTERN         = auto()
+    FALSE          = auto()
+    FINAL          = auto()
+    FLOAT          = auto()
+    FOR            = auto()
+    FRIEND         = auto()
+    GOTO           = auto()
+    IF             = auto()
+    INLINE         = auto()
+    INT            = auto()
+    LONG           = auto()
+    MUTABLE        = auto()
+    NAMESPACE      = auto()
+    NEW            = auto()
+    NOEXCEPT       = auto()
+    NOT            = auto()
+    NOT_EQ         = auto()
+    NULLPTR        = auto()
+    OPERATOR       = auto()
+    OR             = auto()
+    OR_EQ          = auto()
+    PRIVATE        = auto()
+    PROTECTED      = auto()
+    PUBLIC         = auto()
+    REGISTER       = auto()
     REINTERPRET_CAST = auto()
-    REQUIRES = auto()
-    RETURN = auto()
-    SHORT = auto()
-    SIGNED = auto()
-    SIZEOF = auto()
-    STATIC = auto()
-    STATIC_ASSERT = auto()
-    STATIC_CAST = auto()
-    STRUCT = auto()
-    SWITCH = auto()
-    TEMPLATE = auto()
-    THIS = auto()
-    THREAD_LOCAL = auto()
-    THROW = auto()
-    TRUE = auto()
-    TRY = auto()
-    TYPEDEF = auto()
-    TYPEID = auto()
-    TYPENAME = auto()
-    UNION = auto()
-    UNSIGNED = auto()
-    USING = auto()
-    VIRTUAL = auto()
-    VOID = auto()
-    VOLATILE = auto()
-    WCHAR_T = auto()
-    WHILE = auto()
-    XOR = auto()
-    XOR_EQ = auto()
+    REQUIRES       = auto()
+    RETURN         = auto()
+    SHORT          = auto()
+    SIGNED         = auto()
+    SIZEOF         = auto()
+    STATIC         = auto()
+    STATIC_ASSERT  = auto()
+    STATIC_CAST    = auto()
+    STRUCT         = auto()
+    SWITCH         = auto()
+    TEMPLATE       = auto()
+    THIS           = auto()
+    THREAD_LOCAL   = auto()
+    THROW          = auto()
+    TRUE           = auto()
+    TRY            = auto()
+    TYPEDEF        = auto()
+    TYPEID         = auto()
+    TYPENAME       = auto()
+    UNION          = auto()
+    UNSIGNED       = auto()
+    USING          = auto()
+    VIRTUAL        = auto()
+    VOID           = auto()
+    VOLATILE       = auto()
+    WCHAR_T        = auto()
+    WHILE          = auto()
+    XOR            = auto()
+    XOR_EQ         = auto()
 
     # =========================
-    # Operators
+    # Operators & Punctuation
     # =========================
-    PLUS = auto()
-    MINUS = auto()
-    STAR = auto()
-    SLASH = auto()
-    PERCENT = auto()
-    INCREMENT = auto()
-    DECREMENT = auto()
-
-    ASSIGN = auto()
-    PLUS_EQ = auto()
-    MINUS_EQ = auto()
-    STAR_EQ = auto()
-    SLASH_EQ = auto()
-    PERCENT_EQ = auto()
-    AND_EQ_OP = auto()
-    OR_EQ_OP = auto()
-    XOR_EQ_OP = auto()
-    SHL_EQ = auto()
-    SHR_EQ = auto()
-
-    EQ = auto()
-    NEQ = auto()
-    LT = auto()
-    GT = auto()
-    LTE = auto()
-    GTE = auto()
-
-    LOGICAL_AND = auto()
-    LOGICAL_OR = auto()
-    LOGICAL_NOT = auto()
-
-    BIT_AND = auto()
-    BIT_OR = auto()
-    BIT_XOR = auto()
-    BIT_NOT = auto()
-    SHL = auto()
-    SHR = auto()
-
-    CONDITIONAL = auto()
-    COLON = auto()
-    COMMA = auto()
-    DOT = auto()
-    ARROW = auto()
-    ARROW_STAR = auto()
-    DOT_STAR = auto()
-    SCOPE = auto()
-    NEW_ARRAY = auto()
-    DELETE_ARRAY = auto()
-
-    # =========================
-    # Punctuation
-    # =========================
-    LBRACE = auto()
-    RBRACE = auto()
-    LBRACKET = auto()
-    RBRACKET = auto()
-    LPAREN = auto()
-    RPAREN = auto()
-    SEMICOLON = auto()
-    ELLIPSIS = auto()
-    HASH = auto()
-    HASH_HASH = auto()
-    AT = auto()
+    PLUS           = auto()
+    MINUS          = auto()
+    STAR           = auto()
+    SLASH          = auto()
+    PERCENT        = auto()
+    INCREMENT      = auto()
+    DECREMENT      = auto()
+    ASSIGN         = auto()
+    PLUS_EQ        = auto()
+    MINUS_EQ       = auto()
+    STAR_EQ        = auto()
+    SLASH_EQ       = auto()
+    PERCENT_EQ     = auto()
+    AND_EQ_OP      = auto()
+    OR_EQ_OP       = auto()
+    XOR_EQ_OP      = auto()
+    SHL_EQ         = auto()
+    SHR_EQ         = auto()
+    EQ             = auto()
+    NEQ            = auto()
+    LT             = auto()
+    GT             = auto()
+    LTE            = auto()
+    GTE            = auto()
+    LOGICAL_AND    = auto()
+    LOGICAL_OR     = auto()
+    LOGICAL_NOT    = auto()
+    BIT_AND        = auto()
+    BIT_OR         = auto()
+    BIT_XOR        = auto()
+    BIT_NOT        = auto()
+    SHL            = auto()
+    SHR            = auto()
+    CONDITIONAL    = auto()
+    COLON          = auto()
+    COMMA          = auto()
+    DOT            = auto()
+    ARROW          = auto()
+    ARROW_STAR     = auto()
+    DOT_STAR       = auto()
+    SCOPE          = auto()
+    NEW_ARRAY      = auto()
+    DELETE_ARRAY   = auto()
+    LBRACE         = auto()
+    RBRACE         = auto()
+    LBRACKET       = auto()
+    RBRACKET       = auto()
+    LPAREN         = auto()
+    RPAREN         = auto()
+    SEMICOLON      = auto()
+    ELLIPSIS       = auto()
+    HASH           = auto()
+    HASH_HASH      = auto()
+    AT             = auto()
 
 ####################################################################################
+
+# Map lexemes to TokenType
+# (Include all keyword and operator mappings as before)
+
 token_dict = {
-    # --------------------------
     # Keywords
-    # --------------------------
     "alignas": TokenType.ALIGNAS,
     "alignof": TokenType.ALIGNOF,
     "and": TokenType.AND,
@@ -328,14 +311,11 @@ token_dict = {
     "xor": TokenType.XOR,
     "xor_eq": TokenType.XOR_EQ,
 
-    # --------------------------
-    # Operators & Punctuation
-    # --------------------------
+    # Operators & punctuation
     "+": TokenType.PLUS,
     "-": TokenType.MINUS,
     "*": TokenType.STAR,
     "/": TokenType.SLASH,
-    "//": TokenType.COMMENT,
     "%": TokenType.PERCENT,
     "++": TokenType.INCREMENT,
     "--": TokenType.DECREMENT,
@@ -369,6 +349,7 @@ token_dict = {
     ":": TokenType.COLON,
     ",": TokenType.COMMA,
     ".": TokenType.DOT,
+    "...": TokenType.ELLIPSIS,
     "->": TokenType.ARROW,
     "->*": TokenType.ARROW_STAR,
     ".*": TokenType.DOT_STAR,
@@ -382,59 +363,25 @@ token_dict = {
     "(": TokenType.LPAREN,
     ")": TokenType.RPAREN,
     ";": TokenType.SEMICOLON,
-    "...": TokenType.ELLIPSIS,
     "#": TokenType.HASH,
     "##": TokenType.HASH_HASH,
-    "@": TokenType.AT
+    "@": TokenType.AT,
+    "}": TokenType.RBRACE,
+    "(": TokenType.LPAREN,
+    ")": TokenType.RPAREN,
+    ";": TokenType.SEMICOLON,
+    "//": TokenType.COMMENT,
+    "/*": TokenType.COMMENT,
 }
 
+# Sets for quick membership checks
+punctuations = set(p for p in token_dict if token_dict[p] in {
+    TokenType.LBRACE, TokenType.RBRACE, TokenType.LBRACKET, TokenType.RBRACKET,
+    TokenType.LPAREN, TokenType.RPAREN, TokenType.COLON, TokenType.SEMICOLON,
+    TokenType.DOT, TokenType.ELLIPSIS, TokenType.HASH, TokenType.HASH_HASH,
+    TokenType.AT
+})
 
-####################################################################################
+operators = set(p for p in token_dict if token_dict[p] not in punctuations and token_dict[p] != TokenType.COMMENT)
 
-punctuations = {
-    "(", ")", "{", "}", "[", "]", ":", ";", "\"", "'",
-
-    # Comment
-    "//"
-}
-operators = {
-    # Arithmetic
-    "+", "-", "*", "/", "%", "++", "--",
-
-    # Assignment
-    "=", "+=", "-=", "*=", "/=", "%=",
-    "&=", "|=", "^=", "<<=", ">>=",
-
-    # Comparison
-    "==", "!=", "<", ">", "<=", ">=",
-
-    # Logical
-    "&&", "||", "!",
-
-    # Bitwise
-    "&", "|", "^", "~", "<<", ">>",
-
-    # Other
-    "?", ":", ",", ".", "...",
-
-    # Member access
-    "->", "->*", ".*",
-
-    # Scope
-    "::"
-}
-keywords = {
-    "alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor",
-    "bool", "break", "case", "catch", "char", "char8_t", "char16_t", "char32_t",
-    "class", "compl", "concept", "const", "consteval", "constexpr", "constinit",
-    "const_cast", "continue", "co_await", "co_return", "co_yield", "decltype",
-    "default", "delete", "do", "double", "dynamic_cast", "else", "enum",
-    "explicit", "export", "extern", "false", "final", "float", "for", "friend",
-    "goto", "if", "inline", "int", "long", "mutable", "namespace", "new",
-    "noexcept", "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private",
-    "protected", "public", "register", "reinterpret_cast", "requires", "return",
-    "short", "signed", "sizeof", "static", "static_assert", "static_cast",
-    "struct", "switch", "template", "this", "thread_local", "throw", "true",
-    "try", "typedef", "typeid", "typename", "union", "unsigned", "using",
-    "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"
-}
+keywords = { kw for kw, ttype in token_dict.items() if ttype.name in TokenType.__members__ and TokenType[ttype.name].name == ttype.name and ttype.name.isupper() }

@@ -11,7 +11,7 @@ class Scanner:
         self.exhausted = self.curr_line == ""
         self.returned_newline = False
 
-    def peak(self, look_ahead: int=0):
+    def peek(self, look_ahead: int=0):
 
         # Check if scanner is empty
         if self.exhausted:

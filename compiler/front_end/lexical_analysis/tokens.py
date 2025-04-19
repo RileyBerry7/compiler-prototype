@@ -56,6 +56,8 @@ class TokenType(Enum):
     # =========================
     IDENTIFIER = auto()
     INT_LITERAL = auto()
+    INDENT = auto()
+    DEDENT = auto()
     FLOAT_LITERAL = auto()
     STRING_LITERAL = auto()
     CHAR_LITERAL = auto()
@@ -333,6 +335,7 @@ token_dict = {
     "-": TokenType.MINUS,
     "*": TokenType.STAR,
     "/": TokenType.SLASH,
+    "//": TokenType.COMMENT,
     "%": TokenType.PERCENT,
     "++": TokenType.INCREMENT,
     "--": TokenType.DECREMENT,
@@ -389,7 +392,10 @@ token_dict = {
 ####################################################################################
 
 punctuations = {
-    "(", ")", "{", "}", "[", "]", ":", ";", "\"", "'"
+    "(", ")", "{", "}", "[", "]", ":", ";", "\"", "'",
+
+    # Comment
+    "//"
 }
 operators = {
     # Arithmetic

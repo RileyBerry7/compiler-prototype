@@ -20,5 +20,4 @@ class Compiler:
         lexer = Lexer(self.symbols, self.errors)
 
         # Lexical analysis
-        print("break-point 1")
         self.token_stream = lexer.scan(self.in_file)

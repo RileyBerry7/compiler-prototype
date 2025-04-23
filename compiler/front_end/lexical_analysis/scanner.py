@@ -68,3 +68,7 @@ class Scanner:
         else:
             self.curr_line = self.source.get_line(self.line_ptr)
             self.scan_ptr = 0
+
+            # Skip blank lines
+            if self.curr_line.strip() == "":
+                self._next_line()

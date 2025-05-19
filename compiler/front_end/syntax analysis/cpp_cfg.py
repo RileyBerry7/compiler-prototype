@@ -12,7 +12,7 @@ terminals = set(TokenType)
 start_state = 'S'
 
 # All possible variables
-nnon_terminals = {
+non_terminals = {
     # start symbol
     "TranslationUnit",      # entire source file
 
@@ -62,7 +62,64 @@ nnon_terminals = {
 }
 
 # Rules to yield all terminals
-production_rules = {}
+production_rules = {
+"Expression": [["AssignmentExpr"]],
+
+"AssignmentExpr": [
+    ["LogicalOrExpr", TokenType.ASSIGN, "AssignmentExpr"],
+    ["LogicalOrExpr"]
+],
+
+"LogicalOrExpr": [
+    ["LogicalOrExpr", TokenType.LOGICAL_OR, "LogicalAndExpr"],
+    ["LogicalAndExpr"]
+],
+
+"LogicalAndExpr": [
+    ["LogicalAndExpr", TokenType.LOGICAL_AND, "EqualityExpr"],
+    ["EqualityExpr"]
+],
+
+"EqualityExpr": [
+    ["EqualityExpr", TokenType.EQ, "RelationalExpr"],
+    ["EqualityExpr", TokenType.NEQ, "RelationalExpr"],
+    ["RelationalExpr"]
+],
+
+"RelationalExpr": [
+    ["RelationalExpr", TokenType.LT, "AdditiveExpr"],
+    ["RelationalExpr", TokenType.GT, "AdditiveExpr"],
+    ["RelationalExpr", TokenType.LTE, "AdditiveExpr"],
+    ["RelationalExpr", TokenType.GTE, "AdditiveExpr"],
+    ["AdditiveExpr"]
+],
+
+"AdditiveExpr": [
+    ["AdditiveExpr", TokenType.PLUS, "MultiplicativeExpr"],
+    ["AdditiveExpr", TokenType.MINUS, "MultiplicativeExpr"],
+    ["MultiplicativeExpr"]
+],
+
+"MultiplicativeExpr": [
+    ["MultiplicativeExpr", TokenType.STAR, "UnaryExpr"],
+    ["MultiplicativeExpr", TokenType.SLASH, "UnaryExpr"],
+    ["MultiplicativeExpr", TokenType.PERCENT, "UnaryExpr"],
+    ["UnaryExpr"]
+],
+
+"UnaryExpr": [
+    [TokenType.PLUS, "UnaryExpr"],
+    [TokenType.MINUS, "UnaryExpr"],
+    [TokenType.LOGICAL_NOT, "UnaryExpr"],
+    [TokenType.BIT_NOT, "UnaryExpr"],
+    ["PrimaryExpr"]
+],
+
+"PrimaryExpr": [
+    ["Literal"],
+    ["Identifier"],
+    [TokenType.LPAREN, "Expression", TokenType.RPAREN]
+]}
 
 
 CPP_CFG = grammar.CFG(non_terminals,

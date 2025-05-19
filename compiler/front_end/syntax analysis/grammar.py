@@ -13,3 +13,6 @@ class CFG:
         self.production_rules = p
         # The start symbol, which is a non-terminal symbol in V.
         self.start_state = s
+
+        self.follow_sets = []
+        self.first_sets  = []

@@ -43,6 +43,7 @@ class TokenType(Enum):
     # =========================
     # Literals & Indentation
     # =========================
+    EPSILON        = auto()
     IDENTIFIER     = auto()
     INT_LITERAL    = auto()
     FLOAT_LITERAL  = auto()
